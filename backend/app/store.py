@@ -30,6 +30,8 @@ class Store:
     def overview(self) -> dict[str, object]:
         modules: list[dict[str, object]] = []
         for name in self.module_names():
+            if name in LEDGER_MODULES:
+                continue
             rows = self.rows(name)
             modules.append({
                 "name": name,
@@ -47,3 +49,6 @@ class Store:
 
 
 store = Store()
+
+# 台账类附属表：跟在业务模块后面做留痕，不单独计入运营概览。
+LEDGER_MODULES = {"loadsheet_review"}
