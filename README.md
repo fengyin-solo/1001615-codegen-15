@@ -60,7 +60,7 @@ npm run dev
 | 航空配餐 | `catering` | 配餐单 | 配餐单号、关联航班、餐食份数 |
 | 摆渡接送 | `shuttle` | 摆渡任务 | 任务编号、关联航班、车辆编号 |
 | 航空器牵引 | `towing` | 牵引任务 | 牵引编号、关联航班、牵引车号 |
-| 载重平衡 | `loadsheet` | 配载单 | 配载单号、关联航班、计算重量 |
+| 载重平衡 | `loadsheet` | 配载单 | 配载单号、关联航班、机型、计算重量、重心位置 |
 | 通行证件 | `permit` | 通行证件 | 证件编号、持证人员、所属单位 |
 | 保障车辆 | `gse` | 保障车辆 | 车辆编号、车辆类别、适用作业 |
 | 安全监察 | `safety` | 监察记录 | 监察编号、监察区域、监察事项 |
@@ -74,3 +74,18 @@ npm run dev
   `backend/app/routers/<模块>.py`，业务规则在 `backend/app/services/<模块>.py`。
 - 列表接口统一返回 `{ items, total, page, size }`，动作接口统一返回 `{ ok, message }`。
 - 状态流转只允许在 `app/services` 里改，路由层不做业务判断。
+
+## 载重平衡复核台账
+
+- 登记配载单时一并录入计算重量与重心位置，重心是否合规按机型重心包线上限判定
+  （配置见 `app/services/loadsheet.py` 的 `AIRCRAFT_ENVELOPE`，可经
+  `GET /api/loadsheet/envelope` 查询）。
+- 重心超出包线上限的配载单不许直接确认配载，必须先走退回重算。
+- 确认配载、退回重算两个入口仍是列表行内的原动作（`POST /api/loadsheet/{id}/actions`），
+  执行时须带复核人与复核意见；复核人与配载人为同一人时不予受理，返回信息会指出
+  「复核人 / 配载人」这一项对不上。
+- 每次送复核都在复核台账（`GET /api/loadsheet/reviews`）留痕；同一张配载单重复送
+  复核的，以最后一次结论为准，`only_latest=true` 可按单只看末次结论。
+- 台账里的重量直接取自配载单登记数据，`GET /api/loadsheet/summary`
+  的重量合计与列表、台账同一份数，并带 `台账与列表重量一致` 校验。
+- 接口回归测试：`PYTHONPATH=backend python3 backend/tests/test_loadsheet_review.py`。

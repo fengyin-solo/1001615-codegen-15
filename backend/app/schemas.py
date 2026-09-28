@@ -166,12 +166,12 @@ class LoadsheetEntry(BaseModel):
 
     field_0: str | None = None  # 配载单号
     field_1: str | None = None  # 关联航班
-    field_2: str | None = None  # 计算重量
-    field_3: str | None = None  # 重心位置
-    field_4: str | None = None  # 油量数据
-    field_5: str | None = None  # 配载人员
-    field_6: str | None = None  # 复核人员
-    field_7: str | None = None  # 配载状态
+    field_2: str | None = None  # 机型
+    field_3: str | None = None  # 计算重量
+    field_4: str | None = None  # 重心位置
+    field_5: str | None = None  # 油量数据
+    field_6: str | None = None  # 配载人员
+    field_7: str | None = None  # 复核人员/复核结论
 
 class PermitEntry(BaseModel):
     """通行证件明细结构。"""
